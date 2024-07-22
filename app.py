@@ -4,6 +4,7 @@ pygame.init()
 
 beige_marka = (250, 237, 201)
 ford_dark_charcoal = (50, 50, 50)
+black = (0, 0, 0)
 
 # 너비, 높이 설정 800x600
 screen_width = 800
@@ -17,6 +18,14 @@ ball_y = screen_height // 2 - ball_height // 2
 ball_dx = 3
 ball_dy = -3
 
+# 패들 설정
+paddle_width = 100
+paddle_height = 10
+paddle_x = screen_width // 2 - paddle_width // 2
+paddle_y = screen_height - 40
+paddle_dx = 0
+paddle_speed = 6
+
 screen = pygame.display.set_mode((screen_width, screen_height))
 # 프로그램을 시작했을 때 표시되는 제목
 pygame.display.set_caption("벽돌 깨기 게임")
@@ -26,9 +35,35 @@ running = True
 clock = pygame.time.Clock()
 
 while running:
+    # 이벤트 처리
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # KEYDOWN -> 키가 눌렸을 때 발생
+        if event.type == pygame.KEYDOWN:
+            # K_LEFT -> 키보드의 왼쪽 화살표 키
+            if event.key == pygame.K_LEFT:
+                # paddle_dx = 음수로 설정해서 패들이 왼쪽으로 이동
+                paddle_dx = -paddle_speed
+            # K_RIGHT -> 키보드의 오른쪽 화살표 키
+            if event.key == pygame.K_RIGHT:
+                # paddle_dx = 양수로 설정해서 패들이 오른쪽으로 이동
+                paddle_dx = paddle_speed
+        # KEYUP -> 키가 떼어졌을 때 발생
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                # 패들이 멈추게 한다
+                paddle_dx = 0
+
+    # 패들 이동
+    # 패들의 위치를 왼쪽 또는 오른쪽으로 이동
+    paddle_x += paddle_dx
+    # 패들이 화면의 왼쪽 경계를 넘지 않도록
+    if paddle_x < 0:
+        paddle_x = 0
+    # 패들이 화면의 오른쪽 경계를 넘지 않도록
+    if paddle_x > screen_width - paddle_width:
+        paddle_x = screen_width - paddle_width
 
     # 공 이동 (+=는 ball_x = ball_x + ball_dx와 동일)
     ball_x += ball_dx
@@ -49,6 +84,10 @@ while running:
 
     # 공 그리기
     pygame.draw.ellipse(screen, ford_dark_charcoal, (ball_x, ball_y, ball_width, ball_height))
+
+    # 패들 그리기
+    paddle_rect = pygame.Rect(paddle_x, paddle_y, paddle_width, paddle_height)
+    pygame.draw.rect(screen, black, paddle_rect)
 
     # 화면 업데이트
     pygame.display.flip()
